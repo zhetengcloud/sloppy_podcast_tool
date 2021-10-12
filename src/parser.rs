@@ -126,7 +126,7 @@ pub mod quick {
             assert_eq!(b"</item>", item_tag2);
 
             for i in items {
-                debug!("{:?}", i.enclosure.url);
+                debug!("{:?}", i.title);
             }
         }
     }

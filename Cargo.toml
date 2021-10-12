@@ -13,3 +13,4 @@ chrono = "^0.4"
 
 [dev-dependencies]
 flexi_logger = "^0.19"
+ureq = "^2.2"
