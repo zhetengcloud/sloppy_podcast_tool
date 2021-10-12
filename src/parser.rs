@@ -1,14 +1,21 @@
+use crate::model::Item;
+use std::error::Error;
 use std::io::BufRead;
 
 pub type ItemStart = usize;
 pub type ItemEnd = usize;
 pub type ValidItems = (Vec<u8>, ItemStart, ItemEnd);
+pub type DeInfo = (Vec<Item>, ItemEnd);
+pub type DeResult = Result<DeInfo, Box<dyn Error>>;
+
 pub trait Parser {
     fn parse_valid(&self, input: impl BufRead) -> ValidItems;
+    fn de_valid(&self, input: impl BufRead) -> DeResult;
 }
 
 pub mod quick {
     use super::*;
+    use quick_xml::de::from_reader;
     use quick_xml::events::Event;
     use quick_xml::Reader;
     use quick_xml::Writer;
@@ -66,11 +73,18 @@ pub mod quick {
                 right,
             )
         }
+
+        fn de_valid(&self, input: impl BufRead) -> DeResult {
+            let (bytes, _, right) = self.parse_valid(input);
+            let items: Vec<Item> = from_reader(bytes.as_slice())?;
+            Ok((items, right))
+        }
     }
     #[cfg(test)]
     mod tests {
         use super::*;
         use crate::util::init_log;
+        use log::debug;
         use std::include_bytes;
 
         #[test]
@@ -89,6 +103,23 @@ pub mod quick {
             assert_eq!(b"<item>", &new_bytes[0..6]);
             let new_len = new_bytes.len();
             assert_eq!(b"</item>", &new_bytes[(new_len - 7)..new_len]);
+        }
+
+        #[test]
+        fn de_test() {
+            init_log();
+            let bytes = include_bytes!("../samplerss.xml");
+            let bytes2 = bytes.to_vec();
+            let client = Client {};
+            let (items, right) = client
+                .de_valid(bytes2.as_slice())
+                .expect("deserialization failed");
+            let item_tag2 = &bytes2[(right - 7)..right];
+            assert_eq!(b"</item>", item_tag2);
+
+            for i in items {
+                debug!("{:?}", i.enclosure.url);
+            }
         }
     }
 }
