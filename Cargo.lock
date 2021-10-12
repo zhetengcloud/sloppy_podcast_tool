@@ -209,6 +209,7 @@ dependencies = [
 name = "sloppy_podcast_tool"
 version = "1.0.0"
 dependencies = [
+ "chrono",
  "flexi_logger",
  "log",
  "quick-xml",
