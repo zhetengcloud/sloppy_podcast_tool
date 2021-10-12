@@ -83,9 +83,17 @@ pub mod quick {
     #[cfg(test)]
     mod tests {
         use super::*;
-        use crate::util::init_log;
+        use flexi_logger;
         use log::debug;
         use std::include_bytes;
+
+        fn init_log() {
+            let _lg = flexi_logger::Logger::try_with_env_or_str("debug")
+                .unwrap()
+                .log_to_stdout()
+                .start()
+                .unwrap();
+        }
 
         #[test]
         fn xml_valid() {
