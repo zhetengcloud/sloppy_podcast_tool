@@ -36,7 +36,7 @@ fn main() {
         let client = Client {};
         let (items, last_item_postion) = client.de_valid(bufrd).expect("items failed");
         for i in items {
-            debug!("{}", i.title);
+            debug!("{:?}", i.image);
         }
 
         // next start byte index
